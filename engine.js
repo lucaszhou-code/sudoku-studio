@@ -1,0 +1,7 @@
+(function(root){
+const shuffle=a=>{for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const candidates=(b,i)=>{const r=Math.floor(i/9),c=i%9,out=[];for(let n=1;n<=9;n++){let ok=true;for(let k=0;k<9;k++)if(b[r*9+k]===n||b[k*9+c]===n||b[(Math.floor(r/3)*3+Math.floor(k/3))*9+Math.floor(c/3)*3+k%3]===n){ok=false;break}if(ok)out.push(n)}return out};
+function countSolutions(board,limit=2){const b=board.slice();let count=0;function walk(){if(count>=limit)return;let index=-1,opts;for(let i=0;i<81;i++)if(!b[i]){const a=candidates(b,i);if(!a.length)return;if(!opts||a.length<opts.length){index=i;opts=a;if(a.length===1)break}}if(index===-1){count++;return}for(const n of opts){b[index]=n;walk();if(count>=limit)break}b[index]=0}walk();return count}
+function generate(level){const digits=shuffle([1,2,3,4,5,6,7,8,9]),rows=shuffle([0,1,2]).flatMap(g=>shuffle([0,1,2]).map(x=>g*3+x)),cols=shuffle([0,1,2]).flatMap(g=>shuffle([0,1,2]).map(x=>g*3+x));const solution=rows.flatMap(r=>cols.map(c=>digits[(r*3+Math.floor(r/3)+c)%9]));const puzzle=solution.slice(),target={Easy:43,Medium:35,Hard:29,Expert:25}[level];let clues=81;for(const i of shuffle(Array.from({length:81},(_,i)=>i))){if(clues<=target)break;const old=puzzle[i];puzzle[i]=0;if(countSolutions(puzzle)!==1)puzzle[i]=old;else clues--}return {solution,puzzle}}
+root.Sudoku={generate,countSolutions,candidates};if(typeof module!=='undefined')module.exports=root.Sudoku;
+})(typeof window!=='undefined'?window:globalThis);
